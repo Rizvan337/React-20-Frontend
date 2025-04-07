@@ -1,66 +1,55 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { loginUser } from '../services/authService';
 import { loginSuccess } from '../redux/slices/authSlice';
 import { useNavigate } from 'react-router-dom';
 
-const Login = () => {
+const AdminLogin: React.FC = () => {
   const [form, setForm] = useState({ email: '', password: '' });
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-
+  const [error, setError] = useState('');
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    // Basic validation
-    if (!form.email || !form.password) {
-      return setError('Please fill in all fields.');
-    }
+    setError('');
 
     try {
-      setLoading(true);
-      setError(null);
-
       const res = await loginUser(form);
-      dispatch(loginSuccess(res.data));
+      const user = res.data.user;
 
-      // Navigate to home page on successful login
-      navigate('/');
+      console.log('Login response:', user); 
+
+      if (user.role === 'admin') {
+        dispatch(loginSuccess(res.data));
+        navigate('/admin/dashboard');
+      } else {
+        setError('❌ You are not authorized as admin');
+      }
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Invalid credentials');
-    } finally {
-      setLoading(false);
+      console.error('Login error:', err);
+      setError(err.response?.data?.msg || 'Login failed. Please try again.');
     }
   };
 
   return (
     <form onSubmit={handleSubmit}>
-      <h2>Login</h2>
-
       <input
-        placeholder="Email"
-        type="email"
+        placeholder="Admin Email"
         value={form.email}
         onChange={(e) => setForm({ ...form, email: e.target.value })}
       />
-
       <input
         placeholder="Password"
         type="password"
         value={form.password}
         onChange={(e) => setForm({ ...form, password: e.target.value })}
       />
-
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-
-      <button type="submit" disabled={loading}>
-        {loading ? 'Logging in...' : 'Login'}
-      </button>
+      <button type="submit">Login as Admin</button>
+      
+      {error && <p style={{ color: 'red', marginTop: '10px' }}>{error}</p>}
     </form>
   );
 };
 
-export default Login;
+export default AdminLogin;
