@@ -13,7 +13,7 @@ interface AuthState {
 
 const initialState: AuthState = {
   user: null,
-  token: localStorage.getItem('token'),
+  token: localStorage.getItem('token')||null,
 };
 
 const authSlice = createSlice({

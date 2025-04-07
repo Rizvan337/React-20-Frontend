@@ -20,6 +20,7 @@ const App = () => {
         <Route path="/profile" element={token ? <Profile /> : <Navigate to="/login" />} />
         <Route path="/admin-login" element={<AdminLogin />} />
         <Route path="/admin/dashboard" element={<AdminDashboard/>}/>
+        <Route path="/admin" element={<Navigate to="/admin-login" />} /> 
       </Routes>
     </BrowserRouter>
   );
