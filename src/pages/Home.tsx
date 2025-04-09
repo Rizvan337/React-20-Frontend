@@ -1,70 +1,55 @@
-// import React from 'react';
-// import { useSelector } from 'react-redux';
-// import { RootState } from '../redux/store';
-// import { useNavigate } from 'react-router-dom';
-
-// const Home: React.FC = () => {
-//   const user = useSelector((state: RootState) => state.auth.user);
-//   const navigate = useNavigate();
-
-//   return (
-//     <div style={{ padding: '2rem', textAlign: 'center' }}>
-//       <h1>Welcome, {user?.name || 'User'} 👋</h1>
-//       <p>You are successfully logged in!</p>
-//       <button
-//         style={{ marginTop: '1rem', padding: '0.5rem 1rem' }}
-//         onClick={() => navigate('/profile')}
-//       >
-//         Go to Profile
-//       </button>
-
-
-//       <button
-//   style={{ marginTop: '1rem', padding: '0.5rem 1rem' }}
-//   onClick={() => navigate('/admin-login')}
-// >
-//   Go to Admin Login
-// </button>
-
-//     </div>
-//   );
-// };
-
-// export default Home;
-
-
-
-
 import React from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../redux/store';
 import { useNavigate } from 'react-router-dom';
+import { UserCircle, LogOut, ShieldCheck, User } from 'lucide-react';
+import { logout } from '../redux/slices/authSlice';
 
 const Home: React.FC = () => {
   const user = useSelector((state: RootState) => state.auth.user);
+  const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-100 to-white px-4">
-      <div className="bg-white shadow-xl rounded-2xl p-10 max-w-md w-full text-center">
-        <h1 className="text-3xl font-bold text-gray-800 mb-4">
-          Welcome, <span className="text-blue-600">{user?.name || 'User'}</span> 👋
-        </h1>
-        <p className="text-gray-600 mb-6">You are successfully logged in!</p>
-        
-        <button
-          onClick={() => navigate('/profile')}
-          className="w-full bg-blue-600 text-white py-2 rounded-xl hover:bg-blue-700 transition duration-300 mb-3"
-        >
-          Go to Profile
-        </button>
+  const handleLogout = () => {
+    dispatch(logout());
+    navigate('/login');
+  };
 
-        <button
-          onClick={() => navigate('/admin-login')}
-          className="w-full bg-gray-200 text-gray-800 py-2 rounded-xl hover:bg-gray-300 transition duration-300"
-        >
-          Go to Admin Login
-        </button>
+  return (
+    <div className="h-screen w-screen flex items-center justify-center bg-gradient-to-tr from-sky-100 via-white to-indigo-100 relative overflow-hidden">
+      {/* Background Blobs */}
+      <div className="absolute w-80 h-80 bg-indigo-300 rounded-full blur-3xl opacity-30 top-[-5rem] left-[-5rem] animate-pulse" />
+      <div className="absolute w-80 h-80 bg-pink-300 rounded-full blur-3xl opacity-30 bottom-[-5rem] right-[-5rem] animate-pulse" />
+
+      {/* Logout Button */}
+      <button
+        onClick={handleLogout}
+        className="absolute top-6 right-6 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-full flex items-center gap-2 shadow-lg transition-all duration-200"
+      >
+        <LogOut className="w-4 h-4" />
+        Logout
+      </button>
+
+      {/* Center Card */}
+      <div className="z-10 w-full max-w-md bg-white bg-opacity-90 backdrop-blur-md shadow-2xl rounded-3xl p-10 sm:p-12 text-center space-y-6">
+        <div className="flex justify-center">
+          <UserCircle className="h-20 w-20 text-blue-600 drop-shadow-md" />
+        </div>
+
+        <h1 className="text-3xl sm:text-4xl font-bold text-gray-800">
+          Welcome, {user?.name || 'User'} 👋
+        </h1>
+        <p className="text-gray-600">You’re successfully logged in. Let’s get started!</p>
+
+        <div className="space-y-4 pt-2">
+          <button
+            onClick={() => navigate('/profile')}
+            className="w-full py-3 flex justify-center items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium text-lg shadow-md transition"
+          >
+            <User className="w-5 h-5" />
+            Profile
+          </button>
+        </div>
       </div>
     </div>
   );

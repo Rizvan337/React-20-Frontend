@@ -3,6 +3,7 @@ import { useDispatch } from 'react-redux';
 import { loginUser } from '../services/authService';
 import { loginSuccess } from '../redux/slices/authSlice';
 import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 
 const Login = () => {
   const [form, setForm] = useState({ email: '', password: '' });
@@ -15,7 +16,6 @@ const Login = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Basic validation
     if (!form.email || !form.password) {
       return setError('Please fill in all fields.');
     }
@@ -23,11 +23,8 @@ const Login = () => {
     try {
       setLoading(true);
       setError(null);
-
       const res = await loginUser(form);
       dispatch(loginSuccess(res.data));
-
-      // Navigate to home page on successful login
       navigate('/');
     } catch (err: any) {
       setError(err.response?.data?.message || 'Invalid credentials');
@@ -37,30 +34,51 @@ const Login = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <h2>Login</h2>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-500 via-purple-600 to-pink-500 px-4">
+      <motion.form
+        onSubmit={handleSubmit}
+        initial={{ opacity: 0, y: 40 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        className="bg-white shadow-2xl rounded-2xl p-10 max-w-md w-full"
+      >
+        <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">
+          Welcome Back 👋
+        </h2>
 
-      <input
-        placeholder="Email"
-        type="email"
-        value={form.email}
-        onChange={(e) => setForm({ ...form, email: e.target.value })}
-      />
+        <div className="flex flex-col gap-4">
+          <input
+            type="email"
+            placeholder="Email"
+            value={form.email}
+            onChange={(e) => setForm({ ...form, email: e.target.value })}
+            className="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+          />
 
-      <input
-        placeholder="Password"
-        type="password"
-        value={form.password}
-        onChange={(e) => setForm({ ...form, password: e.target.value })}
-      />
+          <input
+            type="password"
+            placeholder="Password"
+            value={form.password}
+            onChange={(e) => setForm({ ...form, password: e.target.value })}
+            className="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+          />
 
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+          {error && (
+            <p className="text-red-500 text-sm font-medium">{error}</p>
+          )}
 
-      <button type="submit" disabled={loading}>
-        {loading ? 'Logging in...' : 'Login'}
-      </button>
-    </form>
+          <button
+            type="submit"
+            disabled={loading}
+            className="bg-purple-600 text-white font-semibold py-3 rounded-lg hover:bg-purple-700 transition duration-300 disabled:opacity-50"
+          >
+            {loading ? 'Logging in...' : 'Login'}
+          </button>
+        </div>
+      </motion.form>
+    </div>
   );
 };
 
 export default Login;
+

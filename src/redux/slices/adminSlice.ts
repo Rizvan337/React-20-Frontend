@@ -1,4 +1,4 @@
-
+import axios from 'axios';
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { RootState } from '../store'; 
 
@@ -20,6 +20,25 @@ const initialState: AdminState = {
   loading: false,
   error: null,
 };
+
+export const updateUser = createAsyncThunk(
+  'admin/updateUser',
+  async ({ id, name, email }: { id: string; name: string; email: string }, thunkAPI) => {
+    const state = thunkAPI.getState() as RootState;
+    const token = state.auth.token;
+
+    const response = await axios.put(
+      `http://localhost:5000/api/users/${id}`,
+      { name, email },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response.data;
+  }
+);
 
 export const fetchUsers = createAsyncThunk(
   "admin/fetchUsers",
@@ -67,9 +86,18 @@ const adminSlice = createSlice({
       .addCase(fetchUsers.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
+      })
+      .addCase(updateUser.fulfilled, (state, action) => {
+        const index = state.users.findIndex((u) => u._id === action.payload._id);
+        if (index !== -1) {
+          state.users[index] = action.payload;
+        }
       });
   },
 });
+
+
+
 
 export const { deleteUser } = adminSlice.actions;
 export default adminSlice.reducer;

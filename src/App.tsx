@@ -5,8 +5,10 @@ import Home from './pages/Home';
 import Profile from './pages/Profile';
 import AdminLogin from './pages/AdminLogin';
 import AdminDashboard from './pages/AdminDashboard';
+import ProtectedAdminRoute from './components/ProtectedAdminRoute';
 import { useSelector } from 'react-redux';
 import { RootState } from './redux/store';
+import './index.css';
 
 const App = () => {
   const token = useSelector((state: RootState) => state.auth.token);
@@ -21,6 +23,9 @@ const App = () => {
         <Route path="/admin-login" element={<AdminLogin />} />
         <Route path="/admin/dashboard" element={<AdminDashboard/>}/>
         <Route path="/admin" element={<Navigate to="/admin-login" />} /> 
+        <Route path="/admin/dashboard" element={<ProtectedAdminRoute>
+        <AdminDashboard />
+        </ProtectedAdminRoute>}/>
       </Routes>
     </BrowserRouter>
   );
