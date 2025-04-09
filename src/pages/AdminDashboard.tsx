@@ -24,14 +24,27 @@ const AdminDashboard = () => {
   const [editedEmail, setEditedEmail] = useState('');
   const navigate = useNavigate();
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const usersPerPage = 5;
+
   useEffect(() => {
     dispatch(fetchUsers());
   }, [dispatch]);
+
+  useEffect(() => {
+    setCurrentPage(1); 
+  }, [search]);
 
   const filteredUsers = users.filter((user) =>
     user.name.toLowerCase().includes(search.toLowerCase()) ||
     user.email.toLowerCase().includes(search.toLowerCase())
   );
+
+
+  const indexOfLastUser = currentPage * usersPerPage;
+const indexOfFirstUser = indexOfLastUser - usersPerPage;
+const currentUsers = filteredUsers.slice(indexOfFirstUser, indexOfLastUser);
+const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
 
   const handleDelete = (id: string) => {
     Swal.fire({
@@ -122,7 +135,7 @@ const AdminDashboard = () => {
                   </td>
                 </tr>
               ) : (
-                filteredUsers.map((user, idx) => (
+                currentUsers.map((user, idx) => (
                   <tr
                     key={user._id}
                     className={`transition hover:bg-gray-50 ${idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}
@@ -156,6 +169,27 @@ const AdminDashboard = () => {
             </tbody>
           </table>
         </div>
+
+
+
+ {/* Pagination Buttons */}
+ {totalPages > 1 && (
+          <div className="flex justify-center mt-6 space-x-2">
+            {Array.from({ length: totalPages }, (_, i) => (
+              <button
+                key={i + 1}
+                onClick={() => setCurrentPage(i + 1)}
+                className={`px-3 py-1 rounded ${
+                  currentPage === i + 1 ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-800'
+                } hover:bg-blue-500 transition`}
+              >
+                {i + 1}
+              </button>
+            ))}
+          </div>
+        )}
+
+        
       </div>
 
       {/* Edit Modal */}
