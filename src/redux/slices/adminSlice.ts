@@ -65,14 +65,32 @@ export const fetchUsers = createAsyncThunk(
   }
 );
 
+
+export const deleteUser = createAsyncThunk(
+  'admin/deleteUser',
+  async (id: string, thunkAPI) => {
+    const state = thunkAPI.getState() as RootState;
+    const token = state.auth.token;
+
+    try {
+      await axios.delete(`http://localhost:5000/api/admin/users/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      return id;
+    } catch (error: any) {
+      return thunkAPI.rejectWithValue(error.response?.data?.message || "Error deleting user");
+    }
+  }
+);
+
+
 const adminSlice = createSlice({
   name: "admin",
   initialState,
-  reducers: {
-    deleteUser(state, action) {
-      state.users = state.users.filter((user) => user._id !== action.payload);
-    },
-  },
+  reducers: {},
   extraReducers: (builder) => {
     builder
       .addCase(fetchUsers.pending, (state) => {
@@ -92,6 +110,12 @@ const adminSlice = createSlice({
         if (index !== -1) {
           state.users[index] = action.payload;
         }
+      })
+      .addCase(deleteUser.fulfilled, (state, action) => {
+        state.users = state.users.filter((user) => user._id !== action.payload);
+      })
+      .addCase(deleteUser.rejected, (state, action) => {
+        state.error = action.payload as string;
       });
   },
 });
@@ -99,5 +123,4 @@ const adminSlice = createSlice({
 
 
 
-export const { deleteUser } = adminSlice.actions;
 export default adminSlice.reducer;
