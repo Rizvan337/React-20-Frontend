@@ -1,88 +1,8 @@
-// import React, { useEffect, useState } from 'react';
-// import { useSelector } from 'react-redux';
-// import { RootState } from '../redux/store';
-// import axios from 'axios';
-
-// interface User {
-//   profileImage?: string;
-//   name?: string;
-//   email?: string;
-// }
-
-// const Profile: React.FC = () => {
-//   const [image, setImage] = useState<File | null>(null);
-//   const [user, setUser] = useState<User | null>(null);
-//   const token = useSelector((state: RootState) => state.auth.token);
-
-//   const fetchUser = async () => {
-//     try {
-//       const res = await axios.get('http://localhost:5000/api/users/me', {
-//         headers: { Authorization: `Bearer ${token}` },
-//       });
-//       setUser(res.data);
-//     } catch (err) {
-//       console.error('Failed to fetch user', err);
-//     }
-//   };
-
-//   useEffect(() => {
-//     fetchUser();
-//   }, []);
-
-//   const handleUpload = async () => {
-//     if (!image) return;
-
-//     const formData = new FormData();
-//     formData.append('image', image);
-
-//     try {
-//       await axios.post('http://localhost:5000/api/users/upload-profile', formData, {
-//         headers: {
-//           Authorization: `Bearer ${token}`,
-//           'Content-Type': 'multipart/form-data',
-//         },
-//       });
-//       alert('Image uploaded successfully!');
-//       fetchUser(); 
-//     } catch (error) {
-//       alert('Upload failed');
-//       console.error(error);
-//     }
-//   };
-
-//   return (
-//     <div>
-//       <h1>Welcome to Profile Page</h1>
-//       <input type="file" onChange={(e) => setImage(e.target.files?.[0] || null)} />
-//       <button onClick={handleUpload}>Upload</button>
-
-//       {user?.profileImage && (
-//         <div>
-//           <h3>Uploaded Image:</h3>
-//           <img
-//             src={`http://localhost:5000/${user.profileImage}`}
-//             alt="Profile"
-//             width={150}
-//             style={{ marginTop: '10px', borderRadius: '10px' }}
-//           />
-//         </div>
-//       )}
-//     </div>
-//   );
-// };
-
-// export default Profile;
-
-
-
-
-
-
-
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { RootState } from '../redux/store';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 interface User {
   profileImage?: string;
@@ -94,6 +14,7 @@ const Profile: React.FC = () => {
   const [image, setImage] = useState<File | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const token = useSelector((state: RootState) => state.auth.token);
+  const navigate = useNavigate();
 
   const fetchUser = async () => {
     try {
@@ -132,7 +53,7 @@ const Profile: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-r from-purple-500 to-indigo-600 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-gradient-to-br from-[#f3f4f6] via-[#e5e7eb] to-[#f9fafb] flex items-center justify-center px-4">
       <div className="bg-white rounded-2xl shadow-2xl p-10 max-w-lg w-full">
         <h1 className="text-3xl font-bold text-center text-gray-800 mb-6">
            Profile Page
@@ -171,10 +92,18 @@ const Profile: React.FC = () => {
 
           <button
             onClick={handleUpload}
-            className="bg-purple-600 text-white font-semibold py-3 rounded-lg hover:bg-purple-700 transition duration-300"
-          >
+            className="bg-blue-600 text-white font-semibold py-3 rounded-lg hover:bg-blue-700 transition duration-300 shadow-md hover:shadow-lg"
+>
             Upload Image
           </button>
+          <button
+  onClick={() => navigate('/')}
+  className="absolute top-4 left-4 bg-white text-blue-600 border border-blue-600 font-medium px-4 py-2 rounded-full shadow hover:bg-blue-50 hover:scale-105 transform transition-all duration-300 ease-in-out flex items-center gap-2"
+>
+  <span className="text-lg">⬅</span>
+  <span className="text-sm sm:text-base">Back to Home</span>
+</button>
+
         </div>
       </div>
     </div>
