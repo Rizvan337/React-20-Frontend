@@ -97,31 +97,6 @@ const Register = () => {
           <p className="text-gray-700 mt-1">Create a new account and start your journey</p>
         </div>
 
-        {/* <div className="space-y-4">
-          <input
-            type="text"
-            placeholder="Full Name"
-            value={form.name}
-            onChange={(e) => setForm({ ...form, name: e.target.value })}
-            className="w-full px-4 py-3 rounded-xl bg-white bg-opacity-90 border border-indigo-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-800 shadow"
-          />
-          <input
-            type="email"
-            placeholder="Email Address"
-            value={form.email}
-            onChange={(e) => setForm({ ...form, email: e.target.value })}
-            className="w-full px-4 py-3 rounded-xl bg-white bg-opacity-90 border border-indigo-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-800 shadow"
-          />
-          <input
-            type="password"
-            value={form.password}
-            placeholder="Password"
-            onChange={(e) => setForm({ ...form, password: e.target.value })}
-            className="w-full px-4 py-3 rounded-xl bg-white bg-opacity-90 border border-indigo-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-800 shadow"
-          />
-        </div> */}
-
-
 <div className="space-y-4">
           <div className="text-left">
             <input

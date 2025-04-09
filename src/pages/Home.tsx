@@ -17,11 +17,9 @@ const Home: React.FC = () => {
 
   return (
     <div className="h-screen w-screen flex items-center justify-center bg-gradient-to-tr from-sky-100 via-white to-indigo-100 relative overflow-hidden">
-      {/* Background Blobs */}
       <div className="absolute w-80 h-80 bg-indigo-300 rounded-full blur-3xl opacity-30 top-[-5rem] left-[-5rem] animate-pulse" />
       <div className="absolute w-80 h-80 bg-pink-300 rounded-full blur-3xl opacity-30 bottom-[-5rem] right-[-5rem] animate-pulse" />
 
-      {/* Logout Button */}
       <button
         onClick={handleLogout}
         className="absolute top-6 right-6 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-full flex items-center gap-2 shadow-lg transition-all duration-200"
@@ -30,7 +28,6 @@ const Home: React.FC = () => {
         Logout
       </button>
 
-      {/* Center Card */}
       <div className="z-10 w-full max-w-md bg-white bg-opacity-90 backdrop-blur-md shadow-2xl rounded-3xl p-10 sm:p-12 text-center space-y-6">
         <div className="flex justify-center">
           <UserCircle className="h-20 w-20 text-blue-600 drop-shadow-md" />

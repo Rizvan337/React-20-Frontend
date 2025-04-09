@@ -57,8 +57,8 @@ const handleDelete = (id: string) => {
     showCancelButton: true,
     confirmButtonText: 'Yes, delete',
     cancelButtonText: 'Cancel',
-    confirmButtonColor: '#dc3545', // Bootstrap red
-    cancelButtonColor: '#6c757d',  // Bootstrap gray
+    confirmButtonColor: '#dc3545', 
+    cancelButtonColor: '#6c757d', 
   }).then((result) => {
     if (result.isConfirmed) {
       dispatch(deleteUser(id))
