@@ -21,24 +21,24 @@ const initialState: AdminState = {
   error: null,
 };
 
-export const updateUser = createAsyncThunk(
-  'admin/updateUser',
-  async ({ id, name, email }: { id: string; name: string; email: string }, thunkAPI) => {
-    const state = thunkAPI.getState() as RootState;
-    const token = state.auth.token;
+// export const updateUser = createAsyncThunk(
+//   'admin/updateUser',
+//   async ({ id, name, email }: { id: string; name: string; email: string }, thunkAPI) => {
+//     const state = thunkAPI.getState() as RootState;
+//     const token = state.auth.token;
 
-    const response = await axios.put(
-      `http://localhost:5000/api/users/${id}`,
-      { name, email },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-    return response.data;
-  }
-);
+//     const response = await axios.put(
+//       `http://localhost:5000/api/users/${id}`,
+//       { name, email },
+//       {
+//         headers: {
+//           Authorization: `Bearer ${token}`,
+//         },
+//       }
+//     );
+//     return response.data;
+//   }
+// );
 
 export const fetchUsers = createAsyncThunk(
   "admin/fetchUsers",
@@ -66,7 +66,34 @@ export const fetchUsers = createAsyncThunk(
 );
 
 
-export const deleteUser = createAsyncThunk(
+
+
+export const updateUser = createAsyncThunk(
+  'admin/updateUser',
+  async ({ id, name, email }: { id: string; name: string; email: string }, thunkAPI) => {
+    const state = thunkAPI.getState() as RootState;
+    const token = state.auth.token;
+
+    try {
+      const response = await axios.put(
+        `http://localhost:5000/api/admin/users/${id}`,
+        { name, email },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      return response.data;
+    } catch (error: any) {
+      return thunkAPI.rejectWithValue(error.response?.data?.message || "Error updating user");
+    }
+  }
+);
+
+
+
+export const deleteUser = createAsyncThunk( 
   'admin/deleteUser',
   async (id: string, thunkAPI) => {
     const state = thunkAPI.getState() as RootState;
@@ -74,6 +101,7 @@ export const deleteUser = createAsyncThunk(
 
     try {
       await axios.delete(`http://localhost:5000/api/admin/users/${id}`, {
+       
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -105,18 +133,35 @@ const adminSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
       })
+      .addCase(updateUser.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
       .addCase(updateUser.fulfilled, (state, action) => {
-        const index = state.users.findIndex((u) => u._id === action.payload._id);
+        state.loading = false;
+        const updatedUser = action.payload;
+        const index = state.users.findIndex((user) => user._id === updatedUser._id);
         if (index !== -1) {
-          state.users[index] = action.payload;
+          state.users[index] = updatedUser;
         }
       })
+      .addCase(updateUser.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(deleteUser.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
       .addCase(deleteUser.fulfilled, (state, action) => {
+        state.loading = false;
         state.users = state.users.filter((user) => user._id !== action.payload);
       })
       .addCase(deleteUser.rejected, (state, action) => {
+        state.loading = false;
         state.error = action.payload as string;
       });
+
   },
 });
 

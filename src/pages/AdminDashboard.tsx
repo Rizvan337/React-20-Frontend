@@ -33,11 +33,6 @@ const AdminDashboard = () => {
     user.email.toLowerCase().includes(search.toLowerCase())
   );
 
-  // const handleDelete = (id: string) => {
-  //   if (window.confirm('Are you sure you want to delete this user?')) {
-  //     dispatch(deleteUser(id));
-  //   }
-  // };
   const handleDelete = (id: string) => {
     Swal.fire({
       title: 'Are you sure?',
@@ -64,12 +59,14 @@ const AdminDashboard = () => {
     setEditModalOpen(true);
   };
 
-  const handleEditSubmit = () => {
+  const handleEditSubmit = async () => {
     if (selectedUser) {
-      dispatch(updateUser({ id: selectedUser._id, name: editedName, email: editedEmail }));
+      await dispatch(updateUser({ id: selectedUser._id, name: editedName, email: editedEmail }));
+      dispatch(fetchUsers());
       setEditModalOpen(false);
     }
   };
+  
 
   const handleLogout = () => {
     dispatch(logout());
