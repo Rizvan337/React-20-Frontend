@@ -21,25 +21,6 @@ const initialState: AdminState = {
   error: null,
 };
 
-// export const updateUser = createAsyncThunk(
-//   'admin/updateUser',
-//   async ({ id, name, email }: { id: string; name: string; email: string }, thunkAPI) => {
-//     const state = thunkAPI.getState() as RootState;
-//     const token = state.auth.token;
-
-//     const response = await axios.put(
-//       `http://localhost:5000/api/users/${id}`,
-//       { name, email },
-//       {
-//         headers: {
-//           Authorization: `Bearer ${token}`,
-//         },
-//       }
-//     );
-//     return response.data;
-//   }
-// );
-
 export const fetchUsers = createAsyncThunk(
   "admin/fetchUsers",
   async (_, thunkAPI) => {
@@ -164,8 +145,5 @@ const adminSlice = createSlice({
 
   },
 });
-
-
-
 
 export default adminSlice.reducer;
