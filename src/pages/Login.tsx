@@ -20,6 +20,18 @@ const Login = () => {
       return setError('Please fill in all fields.');
     }
 
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(form.email)) {
+      return setError('Please enter a valid email address.');
+    }
+  
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{6,}$/;
+    if (!passwordRegex.test(form.password)) {
+      return setError(
+        'Password must be at least 6 characters and include uppercase, lowercase, number, and symbol.'
+      );
+    }
+
     try {
       setLoading(true);
       setError(null);
@@ -74,6 +86,17 @@ const Login = () => {
           >
             {loading ? 'Logging in...' : 'Login'}
           </button>
+
+          <p className="text-center text-sm text-gray-600 mt-4">
+  Don’t have an account?{' '}
+  <span
+    className="text-purple-600 hover:underline cursor-pointer font-medium"
+    onClick={() => navigate('/register')}
+  >
+    Register here
+  </span>
+</p>
+
         </div>
       </motion.form>
     </div>

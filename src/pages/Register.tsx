@@ -1,91 +1,3 @@
-// import { useState } from 'react';
-// import { useDispatch } from 'react-redux';
-// import { registerUser } from '../services/authService';
-// import { loginSuccess } from '../redux/slices/authSlice';
-// import { useNavigate } from 'react-router-dom';
-
-// type RegisterForm = {
-//   name: string;
-//   email: string;
-//   password: string;
-// };
-
-// const Register = () => {
-//   const [form, setForm] = useState<RegisterForm>({ name: '', email: '', password: '' });
-//   const [error, setError] = useState<string | null>(null);
-//   const [loading, setLoading] = useState(false);
-
-//   const dispatch = useDispatch();
-//   const navigate = useNavigate();
-
-//   const handleSubmit = async (e: React.FormEvent) => {
-//     e.preventDefault();
-
-//     // Basic validation
-//     if (!form.name || !form.email || !form.password) {
-//       return setError('Please fill in all fields.');
-//     }
-
-//     try {
-//       setLoading(true);
-//       setError(null);
-
-//       const res = await registerUser(form);
-
-//       // Assuming the API returns token/user details
-//       dispatch(loginSuccess(res.data));
-
-//       // Navigate to login page after successful registration
-//       navigate('/login');
-//     } catch (err: any) {
-//       setError(err.response?.data?.message || 'Something went wrong');
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-//   return (
-//     <form onSubmit={handleSubmit}>
-//       <h2>Register</h2>
-
-//       <input
-//         placeholder="Name"
-//         value={form.name}
-//         onChange={(e) => setForm({ ...form, name: e.target.value })}
-//       />
-
-//       <input
-//         placeholder="Email"
-//         type="email"
-//         value={form.email}
-//         onChange={(e) => setForm({ ...form, email: e.target.value })}
-//       />
-
-//       <input
-//         placeholder="Password"
-//         type="password"
-//         value={form.password}
-//         onChange={(e) => setForm({ ...form, password: e.target.value })}
-//       />
-
-//       {error && <p style={{ color: 'red' }}>{error}</p>}
-
-//       <button type="submit" disabled={loading}>
-//         {loading ? 'Registering...' : 'Register'}
-//       </button>
-//     </form>
-//   );
-// };
-
-// export default Register;
-
-
-
-
-
-
-
-
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { registerUser } from '../services/authService';
@@ -99,30 +11,72 @@ type RegisterForm = {
   password: string;
 };
 
+type Errors = {
+  name?: string;
+  email?: string;
+  password?: string;
+};
+
 const Register = () => {
   const [form, setForm] = useState<RegisterForm>({ name: '', email: '', password: '' });
-  const [error, setError] = useState<string | null>(null);
+  const [errors, setErrors] = useState<Errors>({});
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+
+  
+  const validate = () => {
+    const newErrors: Errors = {};
+
+    if (!form.name.trim()) {
+      newErrors.name = 'Name is required.';
+    } else if (!/^[A-Za-z\s]{3,}$/.test(form.name)) {
+      newErrors.name = 'Name must be at least 3 characters and only contain letters.';
+    }
+
+    if (!form.email.trim()) {
+      newErrors.email = 'Email is required.';
+    } else if (
+      !/^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/.test(form.email)
+    ) {
+      newErrors.email = 'Enter a valid email address.';
+    }
+
+    if (!form.password) {
+      newErrors.password = 'Password is required.';
+    } else if (
+      !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{6,}$/.test(form.password)
+    ) {
+      newErrors.password =
+        'Password must be at least 6 characters and include uppercase, lowercase, number, and symbol.';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setForm({ ...form, [name]: value });
+    setErrors({ ...errors, [name]: undefined }); 
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!form.name || !form.email || !form.password) {
-      return setError('Please fill in all fields.');
-    }
+    if (!validate()) return;
 
     try {
       setLoading(true);
-      setError(null);
+      setSubmitError(null);
 
       const res = await registerUser(form);
       dispatch(loginSuccess(res.data));
       navigate('/login');
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Something went wrong');
+      setSubmitError(err.response?.data?.message || 'Something went wrong');
     } finally {
       setLoading(false);
     }
@@ -130,7 +84,6 @@ const Register = () => {
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-purple-300 via-pink-200 to-indigo-300 relative overflow-hidden px-4">
-      {/* Floating colorful blobs */}
       <div className="absolute w-72 h-72 bg-pink-400 rounded-full blur-3xl opacity-30 top-[-3rem] left-[-3rem] animate-pulse"></div>
       <div className="absolute w-72 h-72 bg-indigo-400 rounded-full blur-3xl opacity-30 bottom-[-3rem] right-[-3rem] animate-pulse"></div>
 
@@ -144,7 +97,7 @@ const Register = () => {
           <p className="text-gray-700 mt-1">Create a new account and start your journey</p>
         </div>
 
-        <div className="space-y-4">
+        {/* <div className="space-y-4">
           <input
             type="text"
             placeholder="Full Name"
@@ -161,14 +114,60 @@ const Register = () => {
           />
           <input
             type="password"
-            placeholder="Password"
             value={form.password}
+            placeholder="Password"
             onChange={(e) => setForm({ ...form, password: e.target.value })}
             className="w-full px-4 py-3 rounded-xl bg-white bg-opacity-90 border border-indigo-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-800 shadow"
           />
-        </div>
+        </div> */}
 
-        {error && <p className="text-red-600 text-sm font-medium">{error}</p>}
+
+<div className="space-y-4">
+          <div className="text-left">
+            <input
+              name="name"
+              type="text"
+              placeholder="Full Name"
+              value={form.name}
+              onChange={handleChange}
+              className={`w-full px-4 py-3 rounded-xl bg-white bg-opacity-90 border ${
+                errors.name ? 'border-red-400' : 'border-indigo-300'
+              } focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-800 shadow`}
+            />
+            {errors.name && <p className="text-sm text-red-600 mt-1">{errors.name}</p>}
+          </div>
+
+          <div className="text-left">
+            <input
+              name="email"
+              type="email"
+              placeholder="Email Address"
+              value={form.email}
+              onChange={handleChange}
+              className={`w-full px-4 py-3 rounded-xl bg-white bg-opacity-90 border ${
+                errors.email ? 'border-red-400' : 'border-indigo-300'
+              } focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-800 shadow`}
+            />
+            {errors.email && <p className="text-sm text-red-600 mt-1">{errors.email}</p>}
+          </div>
+
+          <div className="text-left">
+            <input
+              name="password"
+              type="password"
+              placeholder="Password"
+              value={form.password}
+              onChange={handleChange}
+              className={`w-full px-4 py-3 rounded-xl bg-white bg-opacity-90 border ${
+                errors.password ? 'border-red-400' : 'border-indigo-300'
+              } focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-800 shadow`}
+            />
+            {errors.password && (
+              <p className="text-sm text-red-600 mt-1">{errors.password}</p>
+            )}
+          </div>
+        </div>
+        {submitError && <p className="text-red-600 text-sm font-medium">{submitError}</p>}
 
         <button
           type="submit"

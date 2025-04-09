@@ -49,23 +49,41 @@ const indexOfFirstUser = indexOfLastUser - usersPerPage;
 const currentUsers = filteredUsers.slice(indexOfFirstUser, indexOfLastUser);
 const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
 
-  const handleDelete = (id: string) => {
-    Swal.fire({
-      title: 'Are you sure?',
-      text: "This user will be deleted permanently!",
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#d33',
-      cancelButtonColor: '#3085d6',
-      confirmButtonText: 'Yes, delete it!',
-      cancelButtonText: 'Cancel',
-    }).then((result) => {
-      if (result.isConfirmed) {
-        dispatch(deleteUser(id));
-        Swal.fire('Deleted!', 'User has been deleted.', 'success');
-      }
-    });
-  };
+const handleDelete = (id: string) => {
+  Swal.fire({
+    title: 'Confirm Deletion',
+    text: 'Are you sure you want to delete this user?',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Yes, delete',
+    cancelButtonText: 'Cancel',
+    confirmButtonColor: '#dc3545', // Bootstrap red
+    cancelButtonColor: '#6c757d',  // Bootstrap gray
+  }).then((result) => {
+    if (result.isConfirmed) {
+      dispatch(deleteUser(id))
+        .unwrap()
+        .then(() => {
+          Swal.fire({
+            icon: 'success',
+            title: 'Deleted',
+            text: 'The user has been successfully deleted.',
+            timer: 1500,
+            showConfirmButton: false,
+          });
+        })
+        .catch(() => {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Failed to delete user. Please try again.',
+          });
+        });
+    }
+  });
+};
+
+
   
 
   const openEditModal = (user: User) => {
