@@ -4,6 +4,7 @@ import { fetchUsers, deleteUser, updateUser } from '../redux/slices/adminSlice';
 import { logout } from '../redux/slices/authSlice';
 import { RootState, AppDispatch } from '../redux/store';
 import { Trash2, PencilLine, Plus } from 'lucide-react';
+import { LogOut } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 
@@ -22,6 +23,8 @@ const AdminDashboard = () => {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [editedName, setEditedName] = useState('');
   const [editedEmail, setEditedEmail] = useState('');
+  const [errors, setErrors] = useState<{ name?: string; email?: string }>({});
+
   const navigate = useNavigate();
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -72,11 +75,37 @@ const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
     setEditModalOpen(true);
   };
 
+
+  const validateInputs = () => {
+    const newErrors: { name?: string; email?: string } = {};
+  
+    const nameRegex = /^[a-zA-Z\s.'-]+$/;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  
+    if (!editedName.trim()) {
+      newErrors.name = "Name is required.";
+    } else if (!nameRegex.test(editedName.trim())) {
+      newErrors.name = "Name should only contain letters and valid characters.";
+    }
+  
+    if (!editedEmail.trim()) {
+      newErrors.email = "Email is required.";
+    } else if (!emailRegex.test(editedEmail.trim())) {
+      newErrors.email = "Enter a valid email address.";
+    }
+  
+    setErrors(newErrors);
+  
+    return Object.keys(newErrors).length === 0;
+  };
+  
+
   const handleEditSubmit = async () => {
-    if (selectedUser) {
+    if (validateInputs() && selectedUser) {
       await dispatch(updateUser({ id: selectedUser._id, name: editedName, email: editedEmail }));
       dispatch(fetchUsers());
       setEditModalOpen(false);
+      setErrors({});
     }
   };
   
@@ -92,19 +121,12 @@ const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
         <div className="mb-6 flex justify-between items-center">
           <h1 className="text-3xl font-bold text-gray-800">Admin Dashboard</h1>
           <button
-        onClick={handleLogout}
-        className="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-lg"
-      >
-        🚪 Logout
-      </button>
-
-          <button
-            onClick={() => alert('Create New User - TBD')}
-            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow transition"
-          >
-            <Plus size={18} />
-            Create User
-          </button>
+  onClick={handleLogout}
+  className="flex items-center gap-2 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white px-5 py-2 rounded-full shadow-lg transition transform hover:scale-105"
+>
+  <LogOut size={18} />
+  Logout
+</button>
         </div>
 
         <div className="mb-6">
@@ -202,9 +224,12 @@ const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
               <input
                 type="text"
                 value={editedName}
-                onChange={(e) => setEditedName(e.target.value)}
-                className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                onChange={(e) => setEditedName(e.target.value.replace(/\s\s+/g, ' '))}
+                className={`w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 ${
+                  errors.name ? 'border-red-500 focus:ring-red-500' : 'focus:ring-blue-500'
+                }`}
               />
+              {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
             </div>
             <div className="mb-4">
               <label className="block text-gray-700 mb-1">Email</label>
@@ -212,8 +237,11 @@ const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
                 type="email"
                 value={editedEmail}
                 onChange={(e) => setEditedEmail(e.target.value)}
-                className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className={`w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 ${
+                  errors.email ? 'border-red-500 focus:ring-red-500' : 'focus:ring-blue-500'
+                }`}
               />
+               {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
             </div>
             <div className="flex justify-end gap-3">
               <button
