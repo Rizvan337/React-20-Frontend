@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchUsers, deleteUser, updateUser } from '../redux/slices/adminSlice';
+import { fetchUsers, deleteUser, updateUser,createUser } from '../redux/slices/adminSlice';
 import { logout } from '../redux/slices/authSlice';
 import { RootState, AppDispatch } from '../redux/store';
 import { Trash2, PencilLine, Plus } from 'lucide-react';
@@ -24,7 +24,15 @@ const AdminDashboard = () => {
   const [editedName, setEditedName] = useState('');
   const [editedEmail, setEditedEmail] = useState('');
   const [errors, setErrors] = useState<{ name?: string; email?: string }>({});
-
+  const [createModalOpen, setCreateModalOpen] = useState(false);
+  const [newUser, setNewUser] = useState({
+    name: '',
+    email: '',
+    password: '',
+    role: 'user',
+  });
+  const [createErrors, setCreateErrors] = useState<{ name?: string; email?: string; password?: string }>({});
+  
   const navigate = useNavigate();
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -94,6 +102,44 @@ const handleDelete = (id: string) => {
   };
 
 
+
+  const validateCreateInputs = () => {
+    const errors: { name?: string; email?: string; password?: string } = {};
+    const nameRegex = /^[a-zA-Z\s.'-]+$/;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{6,}$/;
+  
+    if (!newUser.name.trim()) errors.name = 'Name is required.';
+    else if (!nameRegex.test(newUser.name.trim())) errors.name = 'Invalid name format.';
+  
+    if (!newUser.email.trim()) errors.email = 'Email is required.';
+    else if (!emailRegex.test(newUser.email.trim())) errors.email = 'Invalid email format.';
+  
+    if (!newUser.password.trim()) errors.password = 'Password is required.';
+    else if (!passwordRegex.test(newUser.password)) errors.password = 'Password must contain at least one lowercase letter, one uppercase letter, one digit, one special character, and be at least 6 characters long.';
+  
+    setCreateErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  
+  const handleCreateSubmit = async () => {
+    if (validateCreateInputs()) {
+      try {
+        await dispatch<any>(createUser(newUser));
+        dispatch(fetchUsers());
+        Swal.fire('Success', 'User created successfully!', 'success');
+        setCreateModalOpen(false);
+        setNewUser({ name: '', email: '', password: '', role: 'user' });
+        setCreateErrors({});
+      } catch (error) {
+        Swal.fire('Error', 'Something went wrong while creating user.', 'error');
+      }
+    }
+  };
+  
+
+
   const validateInputs = () => {
     const newErrors: { name?: string; email?: string } = {};
   
@@ -156,6 +202,18 @@ const handleDelete = (id: string) => {
             className="w-full md:max-w-md px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
           />
         </div>
+
+<div className="flex justify-between items-center mb-4">
+  <h2 className="text-xl font-semibold text-gray-700">User List</h2>
+  <button
+    onClick={() => setCreateModalOpen(true)}
+    className="flex items-center gap-2 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-5 py-2 rounded-full shadow transition transform hover:scale-105"
+  >
+    <Plus size={18} />
+    Create User
+  </button>
+</div>
+
 
         <div className="overflow-x-auto rounded-lg shadow">
           <table className="w-full bg-white">
@@ -278,6 +336,62 @@ const handleDelete = (id: string) => {
           </div>
         </div>
       )}
+
+
+{createModalOpen && (
+  <div className="fixed inset-0 bg-black bg-opacity-30 flex justify-center items-center z-50">
+    <div className="bg-white p-6 rounded-lg w-full max-w-md shadow-xl">
+      <h2 className="text-xl font-bold mb-4">Create New User</h2>
+      {['name', 'email', 'password'].map((field) => (
+        <div className="mb-4" key={field}>
+          <label className="block text-gray-700 mb-1 capitalize">{field}</label>
+          <input
+            type={field === 'password' ? 'password' : 'text'}
+            value={newUser[field as keyof typeof newUser]}
+            onChange={(e) =>
+              setNewUser((prev) => ({ ...prev, [field]: e.target.value }))
+            }
+            className={`w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 ${
+              createErrors[field as keyof typeof createErrors]
+                ? 'border-red-500 focus:ring-red-500'
+                : 'focus:ring-blue-500'
+            }`}
+          />
+          {createErrors[field as keyof typeof createErrors] && (
+            <p className="text-red-500 text-sm mt-1">
+              {createErrors[field as keyof typeof createErrors]}
+            </p>
+          )}
+        </div>
+      ))}
+      <div className="mb-4">
+        <label className="block text-gray-700 mb-1">Role</label>
+        <select
+          value={newUser.role}
+          onChange={(e) => setNewUser((prev) => ({ ...prev, role: e.target.value }))}
+          className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          <option value="user">User</option>
+          <option value="admin">Admin</option>
+        </select>
+      </div>
+      <div className="flex justify-end gap-3">
+        <button
+          onClick={() => setCreateModalOpen(false)}
+          className="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400"
+        >
+          Cancel
+        </button>
+        <button
+          onClick={handleCreateSubmit}
+          className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+        >
+          Create
+        </button>
+      </div>
+    </div>
+  </div>
+)}
     </div>
   );
 };

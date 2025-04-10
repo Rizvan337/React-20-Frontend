@@ -3,6 +3,7 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../redux/store';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import Swal from 'sweetalert2';
 
 interface User {
   profileImage?: string;
@@ -44,10 +45,21 @@ const Profile: React.FC = () => {
           'Content-Type': 'multipart/form-data',
         },
       });
-      alert('Image uploaded successfully!');
+      Swal.fire({
+        title: 'Success!',
+        text: 'Image uploaded successfully!',
+        icon: 'success',
+        confirmButtonText: 'OK',
+      });
+  
       fetchUser();
     } catch (error) {
-      alert('Upload failed');
+      Swal.fire({
+        title: 'Error!',
+        text: 'Upload failed. Please try again.',
+        icon: 'error',
+        confirmButtonText: 'OK',
+      });
       console.error(error);
     }
   };

@@ -22,7 +22,7 @@ const AdminLogin: React.FC = () => {
         dispatch(loginSuccess(res.data));
         navigate('/admin/dashboard');
       } else {
-        setError('❌ You are not authorized as admin');
+        setError('You are not authorized as admin');
       }
     } catch (err: any) {
       setError(err.response?.data?.msg || 'Login failed. Please try again.');

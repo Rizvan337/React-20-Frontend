@@ -47,6 +47,34 @@ export const fetchUsers = createAsyncThunk(
 );
 
 
+export const createUser = createAsyncThunk(
+  'admin/createUser',
+  async (
+    userData: { name: string; email: string; password: string; role: string },
+    thunkAPI
+  ) => {
+    const state = thunkAPI.getState() as RootState;
+    const token = state.auth.token;
+
+    try {
+      const response = await axios.post(
+        'http://localhost:5000/api/admin/create-user',
+        userData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      return response.data;
+    } catch (error: any) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message || 'Error creating user'
+      );
+    }
+  }
+);
 
 
 export const updateUser = createAsyncThunk(
@@ -141,8 +169,20 @@ const adminSlice = createSlice({
       .addCase(deleteUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
+      })
+      .addCase(createUser.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(createUser.fulfilled, (state, action) => {
+        state.loading = false;
+        state.users.push(action.payload); 
+      })
+      .addCase(createUser.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
       });
-
+      
   },
 });
 

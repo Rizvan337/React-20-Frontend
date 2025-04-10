@@ -11,7 +11,7 @@ import { RootState } from './redux/store';
 import './index.css';
 
 const App = () => {
-  const token = useSelector((state: RootState) => state.auth.token);
+  const token = useSelector((state: RootState) => state.auth.token);  
 
   return (
     <BrowserRouter>
